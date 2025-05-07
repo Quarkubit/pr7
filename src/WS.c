@@ -26,9 +26,24 @@ void search_in_files (const char *file_name, const char *word) {
     fclose(file);
 }
 
+void help (char *prog_name) {
+    printf("Использование: %s [ДИРЕКТОРИЯ] СЛОВО\n", prog_name);
+    printf("Опции:\n");
+    printf("  -h, --help     Показать справку и выйти\n");
+    printf("Описание:\n");
+    printf("  Ищет СЛОВО во всех текстовых файлах в указанной ДИРЕКТОРИИ и её поддиректориях.\n");
+    printf("  Если ДИРЕКТОРИЯ не указана, используется ~/files.\n");
+}
+
 int main(int argc, char *argv[]) {
     printf("\n\tStart working!\n\n");
 
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--help") == 0) {
+            help(argv[0]);
+            return EXIT_SUCCESS;
+        }
+    }
     // Получение домашней директории и проверка
     const char *home_dir = getenv("HOME");
     printf("%s\n", home_dir);
@@ -47,6 +62,12 @@ int main(int argc, char *argv[]) {
     printf("%s\n", dir_path);
     const char *word = (argc > 2) ? argv[2] : argv[1];
     printf("%s\n", word);
+
+    if (!word) {
+        fprintf(stderr, "Не указано искомое слово!\n", argv[0]);
+        help(argv[0]);
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
