@@ -8,22 +8,61 @@
 #include <sys/stat.h>
 
 void search_in_files (const char *file_name, const char *word) {
+    //Открытие необходимого файла и проверка на открытие
     FILE *file = fopen(file_name, "r");
     if (!file){
         perror("Ошибка открытия файла");
         return;
     }
 
+    //Переменные для строки со словом (буфер и счетчик)
     char line[1024];
     int line_count = 0;
+
     while (fgets(line, sizeof(line), file)) {
         line_count++;
+
+        //Поиск слова
         if (strstr(line, word)) {
             printf("%s:%d:\"%s\"", file_name, line_count, line);
         }
     }
 
     fclose(file);
+}
+
+void search_in_dir (const char *dir_path, const char *word) {
+    //Открытие заданной директории
+    DIR *dir = opendir(dir_path);
+    if (!dir) {
+        perror("Ошибка открытия директории");
+        return;
+    }
+
+    struct dirent *entry;
+    while ((entry=readdir(dir)) != NULL) {
+
+        //Проверка на текущую и родительскую папку
+        if (strcmp(entry->d_name, ".") || strcmp(entry->d_name, "..")) {
+            continue;
+        }
+
+        //Сохраняем полный путь к файлу/директории
+        char path[PATH_MAX];
+        snprintf(path, sizeof(path), "%s,%s", dir_path, entry->d_name);
+
+        //Рекурсивный вызов, для проверки поддиректорий
+        if (entry->d_type == DT_DIR) {
+            search_in_dir(path, word);
+        }//Обработка файлов
+        else if (entry->d_type == DT_REG) {
+            search_in_files(path, word);
+        }
+
+    }
+
+    printf("\n\tEnd of work\n\n");
+    closedir(dir);
 }
 
 void help (char *prog_name) {
@@ -38,12 +77,14 @@ void help (char *prog_name) {
 int main(int argc, char *argv[]) {
     printf("\n\tStart working!\n\n");
 
+    //Проверка на опцию help
     for (int i = 1; i < argc; i++) {
         if ((strcmp(argv[i], "--help") == 0) || (strcmp(argv[i], "-h") == 0)) {
             help(argv[0]);
             return EXIT_SUCCESS;
         }
     }
+
     // Получение домашней директории и проверка
     const char *home_dir = getenv("HOME");
     printf("%s\n", home_dir);
@@ -57,17 +98,19 @@ int main(int argc, char *argv[]) {
     snprintf(default_dir, sizeof(default_dir), "%s/files", home_dir);
     printf("%s\n", default_dir);
 
-    //Обработка аргументов
+    //Обработка аргументов (путь к файлам и искомое слово)
     const char *dir_path = (argc > 2) ? argv[1] : default_dir;
     printf("%s\n", dir_path);
     const char *word = (argc > 2) ? argv[2] : argv[1];
-    printf("%s\n", word);
+    printf("%s\n\n", word);
 
+    //Проверка, указано ли искомое число
     if (!word) {
         fprintf(stderr, "Не указано искомое слово!\n", argv[0]);
         help(argv[0]);
         return EXIT_FAILURE;
     }
 
+    search_in_dir(dir_path, word);
     return EXIT_SUCCESS;
 }
