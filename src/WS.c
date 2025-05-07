@@ -24,7 +24,7 @@ void search_in_files (const char *file_name, const char *word) {
 
         //Поиск слова
         if (strstr(line, word)) {
-            printf("%s:%d:\"%s\"", file_name, line_count, line);
+            printf("%s:%d:%s", file_name, line_count, line);
         }
     }
 
@@ -43,13 +43,13 @@ void search_in_dir (const char *dir_path, const char *word) {
     while ((entry=readdir(dir)) != NULL) {
 
         //Проверка на текущую и родительскую папку
-        if (strcmp(entry->d_name, ".") || strcmp(entry->d_name, "..")) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             continue;
         }
 
         //Сохраняем полный путь к файлу/директории
         char path[PATH_MAX];
-        snprintf(path, sizeof(path), "%s,%s", dir_path, entry->d_name);
+        snprintf(path, sizeof(path), "%s/%s", dir_path, entry->d_name);
 
         //Рекурсивный вызов, для проверки поддиректорий
         if (entry->d_type == DT_DIR) {
@@ -61,7 +61,6 @@ void search_in_dir (const char *dir_path, const char *word) {
 
     }
 
-    printf("\n\tEnd of work\n\n");
     closedir(dir);
 }
 
@@ -75,8 +74,6 @@ void help (char *prog_name) {
 }
 
 int main(int argc, char *argv[]) {
-    printf("\n\tStart working!\n\n");
-
     //Проверка на опцию help
     for (int i = 1; i < argc; i++) {
         if ((strcmp(argv[i], "--help") == 0) || (strcmp(argv[i], "-h") == 0)) {
@@ -87,7 +84,6 @@ int main(int argc, char *argv[]) {
 
     // Получение домашней директории и проверка
     const char *home_dir = getenv("HOME");
-    printf("%s\n", home_dir);
     if (!home_dir) {
         fprintf(stderr, "Ошибка: не удалось определить домашнюю директорию\n");
         return EXIT_FAILURE;
@@ -96,13 +92,10 @@ int main(int argc, char *argv[]) {
     //Получение директории по умолчанию
     char default_dir[PATH_MAX];
     snprintf(default_dir, sizeof(default_dir), "%s/files", home_dir);
-    printf("%s\n", default_dir);
 
     //Обработка аргументов (путь к файлам и искомое слово)
     const char *dir_path = (argc > 2) ? argv[1] : default_dir;
-    printf("%s\n", dir_path);
     const char *word = (argc > 2) ? argv[2] : argv[1];
-    printf("%s\n\n", word);
 
     //Проверка, указано ли искомое число
     if (!word) {
