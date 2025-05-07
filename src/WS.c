@@ -27,7 +27,7 @@ void search_in_files (const char *file_name, const char *word) {
 }
 
 void help (char *prog_name) {
-    printf("Использование: %s [ДИРЕКТОРИЯ] СЛОВО\n", prog_name);
+    printf("Использование: %s [ДИРЕКТОРИЯ] ИСКОМОЕ_СЛОВО [ОПЦИИ]\n", prog_name);
     printf("Опции:\n");
     printf("  -h, --help     Показать справку и выйти\n");
     printf("Описание:\n");
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
     printf("\n\tStart working!\n\n");
 
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--help") == 0) {
+        if ((strcmp(argv[i], "--help") == 0) || (strcmp(argv[i], "-h") == 0)) {
             help(argv[0]);
             return EXIT_SUCCESS;
         }
