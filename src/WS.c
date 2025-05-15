@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
 
     //Проверка обязательного аргумента
     if(args[0] == NULL && args[1] == NULL) {
-        fprintf(stderr, "Ошибка: не указано искомое слово!%s\t%s\n", args[0], args[1]);
+        fprintf(stderr, "Ошибка: не указано искомое слово!\n");
         help(argv[0]);
         return EXIT_FAILURE;
     }
@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
     const char *dir_path = (args[1] != NULL) ? args[0] : default_dir;
     const char *word = (args[1] != NULL) ? args[1] : args[0];
 
-    printf("\n\t%s\t%s\t%d\n\n", dir_path, word, ignore_case);
+    //printf("\n\t%s\t%s\t%d\n\n", dir_path, word, ignore_case);
 
     //Проверка, указано ли искомое число
     if (!word) {
